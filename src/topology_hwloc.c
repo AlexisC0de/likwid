@@ -444,27 +444,25 @@ hwloc_init_nodeTopology(cpu_set_t cpuSet)
         {
             continue;
         }
-        id = obj->os_index;
 
-        if (id < 0 || id >= cpuid_topology.numHWThreads)
-            continue;
+        id = obj->os_index;
 
         if (CPU_ISSET(id, &cpuSet))
         {
-            hwThreadPool[id].inCpuSet = 1;
+            hwThreadPool[i].inCpuSet = 1;
         }
         else if (from_file)
         {
-            hwThreadPool[id].inCpuSet = 1;
+            hwThreadPool[i].inCpuSet = 1;
         }
 
         if (!likwid_cpu_online(obj->os_index))
         {
-            hwThreadPool[id].inCpuSet = 0;
+            hwThreadPool[i].inCpuSet = 0;
         }
 
-        hwThreadPool[id].apicId = obj->os_index;
-        hwThreadPool[id].threadId = obj->sibling_rank;
+        hwThreadPool[i].apicId = obj->os_index;
+        hwThreadPool[i].threadId = obj->sibling_rank;
         if (maxNumLogicalProcsPerCore > 1)
         {
             while (obj->type != HWLOC_OBJ_CORE) {
@@ -477,39 +475,39 @@ hwloc_init_nodeTopology(cpu_set_t cpuSet)
             }
             if (skip)
             {
-                hwThreadPool[id].coreId = 0;
-                hwThreadPool[id].packageId = 0;
+                hwThreadPool[i].coreId = 0;
+                hwThreadPool[i].packageId = 0;
                 continue;
             }
         }
         if (skip)
         {
-            hwThreadPool[id].coreId = 0;
-            hwThreadPool[id].packageId = 0;
+            hwThreadPool[i].coreId = 0;
+            hwThreadPool[i].packageId = 0;
             continue;
         }
 #ifdef __ARM_ARCH_8A
-        hwThreadPool[id].coreId = hwThreadPool[id].apicId;
+        hwThreadPool[i].coreId = hwThreadPool[id].apicId;
 #else
-        hwThreadPool[id].coreId = obj->logical_index;
+        hwThreadPool[i].coreId = obj->logical_index;
 #endif
 #if defined(__x86_64) || defined(__i386__)
         if (maxNumLogicalProcsPerCore == 1 && cpuid_info.isIntel == 0)
         {
             if (id == 0)
             {
-                hwThreadPool[id].coreId = hwThreadPool[id].apicId;
+                hwThreadPool[i].coreId = hwThreadPool[i].apicId;
             }
             else
             {
-                if (hwThreadPool[id].apicId == hwThreadPool[id-1].apicId + 1 &&
-                    hwThreadPool[id].packageId == hwThreadPool[id-1].packageId)
+                if (hwThreadPool[i].apicId == hwThreadPool[id-1].apicId + 1 &&
+                    hwThreadPool[i].packageId == hwThreadPool[id-1].packageId)
                 {
-                    hwThreadPool[id].coreId = hwThreadPool[id].apicId % maxNumCoresPerSocket;
+                    hwThreadPool[i].coreId = hwThreadPool[id].apicId % maxNumCoresPerSocket;
                 }
                 else
                 {
-                    hwThreadPool[id].coreId = hwThreadPool[id].apicId;
+                    hwThreadPool[i].coreId = hwThreadPool[id].apicId;
                 }
             }
         }
@@ -526,21 +524,21 @@ hwloc_init_nodeTopology(cpu_set_t cpuSet)
             }
             if (skip)
             {
-                hwThreadPool[id].dieId = 0;
+                hwThreadPool[i].dieId = 0;
                 continue;
             }
             if (obj->type == HWLOC_OBJ_DIE)
             {
-                hwThreadPool[id].dieId = obj->os_index;
+                hwThreadPool[i].dieId = obj->os_index;
             }
             else
             {
-                hwThreadPool[id].dieId = 0;
+                hwThreadPool[i].dieId = 0;
             }
         }
         else
         {
-            hwThreadPool[id].dieId = 0;
+            hwThreadPool[i].dieId = 0;
         }
         while (obj->type != socket_type) {
             obj = obj->parent;
@@ -552,7 +550,7 @@ hwloc_init_nodeTopology(cpu_set_t cpuSet)
         }
         if (skip)
         {
-            hwThreadPool[id].packageId = 0;
+            hwThreadPool[i].packageId = 0;
             continue;
         }
 #ifdef __ARM_ARCH_8A
@@ -565,15 +563,15 @@ hwloc_init_nodeTopology(cpu_set_t cpuSet)
             hwThreadPool[id].packageId = 0;
         }
 #else
-        hwThreadPool[id].packageId = obj->os_index;
+        hwThreadPool[i].packageId = obj->os_index;
 #endif
         DEBUG_PRINT(DEBUGLEV_DEVELOP, HWLOC Thread Pool PU %d Thread %d Core %d Die %d Socket %d inCpuSet %d,
-                            hwThreadPool[id].apicId,
-                            hwThreadPool[id].threadId,
-                            hwThreadPool[id].coreId,
-                            hwThreadPool[id].dieId,
-                            hwThreadPool[id].packageId,
-                            hwThreadPool[id].inCpuSet)
+                            hwThreadPool[i].apicId,
+                            hwThreadPool[i].threadId,
+                            hwThreadPool[i].coreId,
+                            hwThreadPool[i].dieId,
+                            hwThreadPool[i].packageId,
+                            hwThreadPool[i].inCpuSet);
     }
 
     int socket_nums[MAX_NUM_NODES];
